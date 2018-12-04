@@ -1,3 +1,7 @@
+const chars = "abcdefghijklmnopqrstuvwxyz0123456789".split("");
+const randomLength = 6;
+const urlBase = "https://prnt.sc/";
+
 function getCurrentUrl() {
     const buttons = $("#button-pack");
     const inputUrl = $("input[name=start-url]").val();
@@ -61,7 +65,6 @@ function loadUrl() {
 }
 
 function nextId(url) {
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789".split("");
     const charsLen = chars.length;
     const str = url.split("");
     const reversed = str.reverse();
@@ -83,7 +86,6 @@ function nextId(url) {
     return reversed.reverse().join("");
 }
 function prevId(url) {
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789".split("");
     const charsLen = chars.length;
     const str = url.split("");
     const reversed = str.reverse();
@@ -117,6 +119,19 @@ function loadNext() {
     const inputUrl = getCurrentUrl();
     if (!inputUrl) return;
     const url = inputUrl[1] + nextId(inputUrl[2]);
+    setCurrentUrl(url);
+    loadUrl();
+}
+
+// "They did research, you know.. 60% of the time - it work's every time! ;-)"
+function randomPage() {
+    let random = [];
+
+    for (let i=0; i<randomLength; i++) {
+        random[i] = chars[Math.floor(Math.random()*chars.length)];
+    }
+
+    const url = urlBase + random.join("");
     setCurrentUrl(url);
     loadUrl();
 }
