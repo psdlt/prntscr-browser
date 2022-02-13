@@ -1,6 +1,7 @@
 const chars = "abcdefghijklmnopqrstuvwxyz0123456789".split("");
 const randomLength = 6;
 const urlBase = "https://prnt.sc/";
+window.autoRandom = false;
 
 function getCurrentUrl() {
     const buttons = $("#button-pack");
@@ -30,21 +31,20 @@ function setCurrentUrl(url) {
     $("input[name=start-url]").val(url);
 }
 
-function loadUrl() {
+function loadUrl(history = true) {
     const inputUrl = getCurrentUrl();
     if (!inputUrl) return;
-
     const url = inputUrl[0];
     const imageId = inputUrl[2];
-
     log("Loading: "+url);
-    $.get("https://cors-anywhere.herokuapp.com/"+url, function(content) {
+    $.get("/img/"+imageId, function(content) {
         const r = content.match(/https:\/\/image\.prntscr\.com\/image\/.*?\.(png|jpeg|jpg)/);
 
         const container = $("#content-container");
 
         if (!r) {
             log("Failed to load image "+imageId, "danger");
+			fail();
             return;
         }
         const imageUrl = r[0];
@@ -55,72 +55,27 @@ function loadUrl() {
             log(false);
             container.empty();
             container.append(img);
+			if(history) { addHistory(imageId, imageUrl); };
         });
 
         img.attr("src", imageUrl);
-
+        img.attr("onerror", `log("Failed to load image", "danger"); fail();`);
     }, "html");
-
-
 }
 
-function nextId(url) {
-    const charsLen = chars.length;
-    const str = url.split("");
-    const reversed = str.reverse();
-    for (const k in reversed) {
-        const char = reversed[k];
-        const index = chars.indexOf(char);
-        if (index == -1) {
-            log("What is this sorcery??", "danger");
-            return false;
-        }
-        if (index+1 == charsLen) {
-            reversed[k] = chars[0];
-            continue;
-        }
-
-        reversed[k] = chars[index+1];
-        break;
-    }
-    return reversed.reverse().join("");
-}
-function prevId(url) {
-    const charsLen = chars.length;
-    const str = url.split("");
-    const reversed = str.reverse();
-    for (const k in reversed) {
-        const char = reversed[k];
-        const index = chars.indexOf(char);
-        if (index == -1) {
-            log("What is this sorcery??", "danger");
-            return false;
-        }
-        if (index == 0) {
-            reversed[k] = chars[charsLen-1];
-            continue;
-        }
-
-        reversed[k] = chars[index-1];
-        break;
-    }
-    return reversed.reverse().join("");
-}
-
-function loadPrev() {
+function saveImage() {
     const inputUrl = getCurrentUrl();
     if (!inputUrl) return;
-    const url = inputUrl[1] + prevId(inputUrl[2]);
-    setCurrentUrl(url);
-    loadUrl();
-}
-
-function loadNext() {
-    const inputUrl = getCurrentUrl();
-    if (!inputUrl) return;
-    const url = inputUrl[1] + nextId(inputUrl[2]);
-    setCurrentUrl(url);
-    loadUrl();
+    const url = $("img").attr("src");
+    const id = inputUrl[2];
+    log("Saving: "+id);
+    $.get("/save?id="+id+"&link="+url, function(content) {
+		if(content.length > 0) {
+			log(content, "danger");
+		} else {
+			log("Saved image");			
+		}
+    }, "html");
 }
 
 // "They did research, you know.. 60% of the time - it work's every time! ;-)"
@@ -138,10 +93,8 @@ function randomPage() {
 
 let lastLogClass = null;
 
-function log(str, type) {
+function log(str, type = "info") {
     const log = $("#log");
-    type = (typeof type !== 'undefined') ? type : "info";
-
     if (!str) {
         log.hide();
         return;
@@ -162,17 +115,27 @@ function log(str, type) {
     log.text(str);
 }
 
+function clearHistory() {
+	$("#history").html("");
+}
+
+function addHistory(id, url) {
+	$("#history").append(
+		$(`<div class="row" style="cursor: pointer" onclick="setCurrentUrl('${urlBase}${id}'); loadUrl(false);"><img src="${url}" height="64" width="64" /><h5 class="ml-4">ID: ${id}</h5></div><hr>`)
+	);				
+}
+
+function fail() {
+	if(window.autoRandom) {
+		randomPage();
+	}
+}
+
+function switchFail() {
+	window.autoRandom = !window.autoRandom;
+	$("#fail").attr("class", "btn "+ (window.autoRandom ? "btn-success" : "btn-danger"));
+}
+
 $(document).ready(function() {
     log(false);
 });
-
-document.onkeydown = function(e) {
-    e = e || window.event;
-    const key = e.key;
-
-    if (key.toLowerCase() == 'p') {
-        loadPrev();
-    } else if (key.toLowerCase() == 'n') {
-        loadNext();
-    }
-};

@@ -16,14 +16,10 @@
                     <input type="text" placeholder="Starting URL" name="start-url" class="form-control"/>
                 </div>
                 <div class="col-4">
-                    <button type="button" onclick="loadUrl();" class="btn btn-primary">Go!</button>
-
-                    <button type="button" onclick="randomPage();" class="btn btn-danger">Random :)</button>
-
-                    <span id="button-pack" style="display: none">
-                        <button type="button" onclick="loadPrev();" class="btn btn-success">(P)rev</button>
-                        <button type="button" onclick="loadNext();" class="btn btn-success">(N)ext</button>
-                    </span>
+                    <button type="button" onclick="loadUrl();" class="btn btn-primary">Go</button>
+                    <button type="button" onclick="randomPage();" class="btn btn-danger">Random</button>
+                    <button type="button" onclick="saveImage();" class="btn btn-success">Save image</button>
+                    <button type="button" onclick="switchFail();" class="btn btn-danger" id="fail">AutoSkip Failed</button>
                 </div>
             </div>
             <div class="alert mt-2" id="log" style="display: none"></div>
@@ -31,6 +27,14 @@
                 <div class="col-12 text-center" id="content-container">
                     Paste your random https://prnt.sc/ URL in the input above and press Go!
                 </div>
+            </div>
+			
+			<div class="mt-5" style="display: flex; flex-direction: column;">
+				<div class="row">
+					<h3>History</h3>
+					<button type="button" onclick="clearHistory();" class="btn btn-danger ml-4">Clear History</button>
+				</div>
+				<div id="history" style="display: flex; flex-direction: column-reverse;" class="mt-4"></div>
             </div>
         </div>
     </body>
