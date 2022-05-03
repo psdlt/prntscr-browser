@@ -11,19 +11,18 @@ app.get('/', (req,res) => {
 	res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.get('/script.js', (req,res) => {
-	res.sendFile(path.join(__dirname, "script.js"));
+app.get('/static/:id', (req,res) => {
+	res.sendFile(path.join(__dirname, "static", req.params.id));
 });
 
 app.get('/img/:id', async(req,res) => {
-	var x = await fetch("https://prnt.sc/"+req.params.id).then(x => x.text());	
-	return res.send(x);
+	let page = await fetch("https://prnt.sc/"+req.params.id).then(x => x.text());	
+	return res.send(page);
 });
 
-// http://localhost:3000/save?id=ID&link=LINK
 app.get('/save', async(req,res) => {
 	try {
-		var buffer = await fetch(req.query.link).then(x => x.buffer());	
+		let buffer = await fetch(req.query.link).then(x => x.buffer());	
 		fs.writeFileSync(path.join(__dirname, "img", req.query.id+".png"), buffer);
 		
 		return res.send("");
