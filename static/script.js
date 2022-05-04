@@ -36,7 +36,6 @@ function loadUrl(history = true) {
 
     let img = $("#image");
     img.attr("src", imageUrl);
-    $("#img-id").html(imageId);
 
     if (history) {
       addHistory(imageId, imageUrl);
